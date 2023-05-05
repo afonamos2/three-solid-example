@@ -59,7 +59,7 @@ export function Scene(props: SceneProps) {
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(document.body.clientWidth, document.body.clientHeight);
+      renderer.setSize(window.innerWidth, window.innerHeight);
     }
     onWindowResize();
     window.addEventListener("resize", onWindowResize);
@@ -68,26 +68,30 @@ export function Scene(props: SceneProps) {
     let frame = requestAnimationFrame(function renderLoop(timestamp: number) {
       const dt = () => (timestamp - lastTime) / 1_000;
 
+      // Updating cannon position
       cannon.position.set(props.cannonPos.x, props.cannonPos.y, props.cannonPos.z);
 
       // Adding "gravity"
       ballVel.y += dt() * -1;
 
+      // Applying velocity
       ball.position.x += ballVel.x;
       ball.position.y += ballVel.y;
       ball.position.z += ballVel.z;
 
+      // Resetting ball if it goes out of bounds
       if (Math.abs(ball.position.y) > 500 || Math.abs(ball.position.x) > 1000 || Math.abs(ball.position.z) > 1000) {
         ballVel.set(props.cannonDir.x, props.cannonDir.y, props.cannonDir.z);
         ball.position.set(props.cannonPos.x, props.cannonPos.y, props.cannonPos.z);
       }
 
+      // Rendering
       frame = requestAnimationFrame(renderLoop);
       renderer.render(scene, camera);
-
       lastTime = timestamp;
     });
 
+    // Cleanup
     onCleanup(() => {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", onWindowResize);

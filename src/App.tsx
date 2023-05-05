@@ -1,5 +1,5 @@
-import { Accessor, createSignal, JSX, Setter } from 'solid-js';
 import * as THREE from 'three';
+import { Accessor, createSignal, JSX, Setter } from 'solid-js';
 import { Scene } from './Scene';
 import './App.css';
 
@@ -9,14 +9,6 @@ function App() {
 
   const [cannonDir, setCannonDir] = createSignal(new THREE.Vector3(3, 1, -4));
   const [cannonPos, setCannonPos] = createSignal(new THREE.Vector3(0, 0, 0));
-
-  function handleCannonDirChange(e: Event & { currentTarget: HTMLInputElement }, axis: AXIS) {
-    handleVectorInput(setCannonDir, parseFloat(e.currentTarget.value), axis);
-  }
-
-  function handleCannonPosChange(e: Event & { currentTarget: HTMLInputElement }, axis: AXIS) {
-    handleVectorInput(setCannonPos, parseFloat(e.currentTarget.value), axis);
-  }
 
   function handleVectorInput(setter: Setter<THREE.Vector3>, newValue: number, axis: AXIS) {
     switch (axis) {
@@ -34,8 +26,8 @@ function App() {
 
   const vectorInput = (
       label: string, 
-      inputTarget: (e: Event & { currentTarget: HTMLInputElement }, axis: AXIS) => void,
       accessor: Accessor<THREE.Vector3>,
+      setter: Setter<THREE.Vector3>,
       axis: AXIS,
       min: number = -10,
       max: number = 10,
@@ -49,7 +41,7 @@ function App() {
           max={max}
           value={axis === "X" ? accessor().x : axis === "Y" ? accessor().y : accessor().z}
           step={step}
-          onInput={(e) => inputTarget(e, axis)}
+          onInput={(e) => handleVectorInput(setter, e.target.valueAsNumber, axis)}
         ></input>
       </label>
     )
@@ -66,15 +58,15 @@ function App() {
       <div class='controls-wrapper'>
         <div class='controls-group'>
           <h4>Cannon Direction</h4>
-          {vectorInput("X", handleCannonDirChange, cannonDir, "X")}
-          {vectorInput("Y", handleCannonDirChange, cannonDir, "Y")}
-          {vectorInput("Z", handleCannonDirChange, cannonDir, "Z")}
+          {vectorInput("X", cannonDir, setCannonDir, "X")}
+          {vectorInput("Y", cannonDir, setCannonDir, "Y")}
+          {vectorInput("Z", cannonDir, setCannonDir, "Z")}
         </div>
         <div class='controls-group'>
           <h4>Cannon Position</h4>
-          {vectorInput("X", handleCannonPosChange, cannonPos, "X", -200, 200, 1)}
-          {vectorInput("Y", handleCannonPosChange, cannonPos, "Y", -100, 100, 1)}
-          {vectorInput("Z", handleCannonPosChange, cannonPos, "Z", -50, 50, 1)}
+          {vectorInput("X", cannonPos, setCannonPos, "X", -200, 200, 1)}
+          {vectorInput("Y", cannonPos, setCannonPos, "Y", -100, 100, 1)}
+          {vectorInput("Z", cannonPos, setCannonPos, "Z", -50, 50, 1)}
         </div>
       </div>
     </div>
