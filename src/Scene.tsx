@@ -3,7 +3,7 @@ import { createSignal, onCleanup, onMount } from "solid-js";
 
 type SceneProps = {
   cameraPos: THREE.Vector3,
-  lightPos: THREE.Vector3,
+  directionalLight: THREE.Vector3,
   cannonDir: THREE.Vector3,
   cannonPos: THREE.Vector3,
 }
@@ -23,7 +23,10 @@ export function Scene(props: SceneProps) {
 
     // Setting up light
     const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(props.lightPos.x, props.lightPos.y, props.lightPos.z);
+    const setLightDir  = () => {
+      const lightDir = props.directionalLight.clone();
+      light.position.set(lightDir.x, lightDir.y, lightDir.z);
+    }
     scene.add(light);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
@@ -70,6 +73,7 @@ export function Scene(props: SceneProps) {
 
       // Updating cannon position
       cannon.position.set(props.cannonPos.x, props.cannonPos.y, props.cannonPos.z);
+      setLightDir();
 
       // Adding "gravity"
       ballVel.y += dt() * -1;

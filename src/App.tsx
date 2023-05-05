@@ -6,7 +6,7 @@ import './App.css';
 type AXIS = "X" | "Y" | "Z";
 
 function App() {
-
+  const [directionalLight, setDirectionalLight] = createSignal(new THREE.Vector3(0, 1, 0));
   const [cannonDir, setCannonDir] = createSignal(new THREE.Vector3(3, 1, -4));
   const [cannonPos, setCannonPos] = createSignal(new THREE.Vector3(0, 0, 0));
 
@@ -22,27 +22,45 @@ function App() {
         setter((prev) => new THREE.Vector3(prev.x, prev.y, newValue))
         break;
     }
-  } 
+  }
 
   const vectorInput = (
+    label: string, 
+    accessor: Accessor<THREE.Vector3>,
+    setter: Setter<THREE.Vector3>,
+    min: number = -10,
+    max: number = 10,
+    step: number = 0.1,
+  ) => {
+    return (
+      <div class='controls-group'>
+        <h4>{label}</h4>
+        {slideInput("X", () => {return accessor().x}, (newValue) => {handleVectorInput(setter, newValue, "X")}, min, max, step)}
+        {slideInput("Y", () => {return accessor().y}, (newValue) => {handleVectorInput(setter, newValue, "Y")}, min, max, step)}
+        {slideInput("Z", () => {return accessor().z}, (newValue) => {handleVectorInput(setter, newValue, "Z")}, min, max, step)}
+      </div>
+    );
+  }
+
+  const slideInput = (
       label: string, 
-      accessor: Accessor<THREE.Vector3>,
-      setter: Setter<THREE.Vector3>,
-      axis: AXIS,
+      value: () => number | number,
+      onInput: (newValue: number) => void,
       min: number = -10,
       max: number = 10,
       step: number = 0.1,
     ): JSX.Element => {
     return (
-      <label class="vector-input">{label}
+      <label class="slide-input">{label}
         <input
           type="range"
           min={min}
           max={max}
-          value={axis === "X" ? accessor().x : axis === "Y" ? accessor().y : accessor().z}
+          value={value()}
           step={step}
-          onInput={(e) => handleVectorInput(setter, e.target.valueAsNumber, axis)}
+          onInput={(e) => onInput(e.currentTarget.valueAsNumber)}
         ></input>
+        <div>{value()}</div>
       </label>
     )
   }
@@ -51,23 +69,14 @@ function App() {
     <div class='App'>
       <Scene
         cameraPos={new THREE.Vector3(0, 0, 150)}
-        lightPos={new THREE.Vector3(150, 150, 150)}
+        directionalLight={directionalLight()}
         cannonDir={cannonDir()}
         cannonPos={cannonPos()}
       />
       <div class='controls-wrapper'>
-        <div class='controls-group'>
-          <h4>Cannon Direction</h4>
-          {vectorInput("X", cannonDir, setCannonDir, "X")}
-          {vectorInput("Y", cannonDir, setCannonDir, "Y")}
-          {vectorInput("Z", cannonDir, setCannonDir, "Z")}
-        </div>
-        <div class='controls-group'>
-          <h4>Cannon Position</h4>
-          {vectorInput("X", cannonPos, setCannonPos, "X", -200, 200, 1)}
-          {vectorInput("Y", cannonPos, setCannonPos, "Y", -100, 100, 1)}
-          {vectorInput("Z", cannonPos, setCannonPos, "Z", -50, 50, 1)}
-        </div>
+        {vectorInput("Directional Light", directionalLight, setDirectionalLight, -1, 1, 0.1)}
+        {vectorInput("Cannon Direction", cannonDir, setCannonDir)}
+        {vectorInput("Cannon Position", cannonPos, setCannonPos, -250, 250, 1)}
       </div>
     </div>
   );
