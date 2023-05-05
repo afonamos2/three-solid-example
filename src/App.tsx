@@ -42,7 +42,7 @@ function App() {
       step: number = 0.1,
     ): JSX.Element => {
     return (
-      <label for="cannon-dir">{label}
+      <label class="vector-input">{label}
         <input
           type="range"
           min={min}
@@ -64,12 +64,18 @@ function App() {
         cannonPos={cannonPos()}
       />
       <div class='controls-wrapper'>
-        {vectorInput("Cannon X Direction", handleCannonDirChange, cannonDir, "X")}
-        {vectorInput("Cannon Y Direction", handleCannonDirChange, cannonDir, "Y")}
-        {vectorInput("Cannon Z Direction", handleCannonDirChange, cannonDir, "Z")}
-        {vectorInput("Cannon X Position", handleCannonPosChange, cannonPos, "X", -200, 200, 1)}
-        {vectorInput("Cannon Y Position", handleCannonPosChange, cannonPos, "Y", -100, 100, 1)}
-        {vectorInput("Cannon Z Position", handleCannonPosChange, cannonPos, "Z", -50, 50, 1)}
+        <div class='controls-group'>
+          <h4>Cannon Direction</h4>
+          {vectorInput("X", handleCannonDirChange, cannonDir, "X")}
+          {vectorInput("Y", handleCannonDirChange, cannonDir, "Y")}
+          {vectorInput("Z", handleCannonDirChange, cannonDir, "Z")}
+        </div>
+        <div class='controls-group'>
+          <h4>Cannon Position</h4>
+          {vectorInput("X", handleCannonPosChange, cannonPos, "X", -200, 200, 1)}
+          {vectorInput("Y", handleCannonPosChange, cannonPos, "Y", -100, 100, 1)}
+          {vectorInput("Z", handleCannonPosChange, cannonPos, "Z", -50, 50, 1)}
+        </div>
       </div>
     </div>
   );
