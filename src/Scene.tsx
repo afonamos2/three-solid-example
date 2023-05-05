@@ -3,9 +3,18 @@ import { createSignal, onCleanup, onMount } from "solid-js";
 
 type SceneProps = {
   cameraPos: THREE.Vector3,
-  directionalLight: THREE.Vector3,
   cannonDir: THREE.Vector3,
   cannonPos: THREE.Vector3,
+  directionalLight: THREE.Vector3,
+  directionalLightColor?: THREE.ColorRepresentation,
+  staticObject: SceneObject[],
+}
+
+export type SceneObject = {
+  name: string,
+  mesh: THREE.Mesh,
+  pos: THREE.Vector3,
+  dir: THREE.Vector3,
 }
 
 export function Scene(props: SceneProps) {
@@ -22,8 +31,8 @@ export function Scene(props: SceneProps) {
     camera.position.set(props.cameraPos.x, props.cameraPos.y, props.cameraPos.z);
 
     // Setting up light
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    const setLightDir  = () => {
+    const light = new THREE.DirectionalLight(props.directionalLightColor ?? 0xffffff, 1);
+    const setLightDir = () => {
       const lightDir = props.directionalLight.clone();
       light.position.set(lightDir.x, lightDir.y, lightDir.z);
     }
@@ -40,17 +49,23 @@ export function Scene(props: SceneProps) {
 
     // Use your imagination on the cannon part
     const cannon = new THREE.Mesh(
-      new THREE.SphereGeometry(15, 15, 15), 
+      new THREE.SphereGeometry(15, 15, 15),
       new THREE.MeshStandardMaterial({
         color: 'green',
         metalness: 0.5,
         roughness: 0.5,
         emissive: 'green',
         emissiveIntensity: 0.25,
-    }));
+      }));
     scene.add(cannon);
     cannon.position.set(props.cannonPos.x, props.cannonPos.y, props.cannonPos.z);
 
+    // Adding objects
+    for (const obj of props.staticObject) {
+      scene.add(obj.mesh);
+      obj.mesh.position.set(obj.pos.x, obj.pos.y, obj.pos.z);
+      obj.mesh.rotation.set(obj.dir.x / Math.PI * 180, obj.dir.y / Math.PI * 180, obj.dir.z / Math.PI * 180);
+    }
 
     // Setting up renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -74,6 +89,11 @@ export function Scene(props: SceneProps) {
       // Updating cannon position
       cannon.position.set(props.cannonPos.x, props.cannonPos.y, props.cannonPos.z);
       setLightDir();
+
+      for (const obj of props.staticObject) {
+        obj.mesh.position.set(obj.pos.x, obj.pos.y, obj.pos.z);
+        obj.mesh.rotation.set(obj.dir.x * Math.PI / 180, obj.dir.y * Math.PI / 180, obj.dir.z * Math.PI / 180);
+      }
 
       // Adding "gravity"
       ballVel.y += dt() * -1;
